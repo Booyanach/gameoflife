@@ -59,7 +59,7 @@ GOL.prototype.generateGrid = function () {
             var element = {
                 iColumn: iColumn,
                 iCell: iCell,
-                column: column,
+                col: column,
                 column: (iColumn * self.cellSize) + self.cellSpacing + (self.cellSpacing * iColumn),
                 row: (iCell * self.cellSize) + self.cellSpacing + (self.cellSpacing * iCell),
                 color: self.colors[0],
@@ -107,10 +107,10 @@ GOL.prototype.drawCell = function (element) {
     );
 }
 
-GOL.prototype.updateGrid = function (callback) {
+GOL.prototype.updateGrid = function () {
     var self = this;
     self.elements.forEach(function (element) {
-        var neighbors = self.getNeighbors(element.column, element.iColumn, element.iCell);
+        var neighbors = self.getNeighbors(element.col, element.iColumn, element.iCell);
         element.value = self.calculateBehavior(neighbors, element.value);
         self.storeCell(element);
     });

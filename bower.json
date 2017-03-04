@@ -5,7 +5,7 @@
   "authors": [
     "Gonçalo Vieira <sandwave@gmail.com>"
   ],
-  "license": "MIT",
+  "license": "",
   "homepage": "https://github.com/Booyanach/gameoflife",
   "private": true,
   "ignore": [
