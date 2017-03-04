@@ -5,7 +5,7 @@
   "main": "index.js",
   "repository": "https://github.com/Booyanach/gameoflife.git",
   "author": "Gonçalo Vieira <sandwave@gmail.com>",
-  "license": "MIT",
+  "license": "",
   "dependencies": {
     "mocha": "^3.2.0"
   }
