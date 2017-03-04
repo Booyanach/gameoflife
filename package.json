@@ -1,0 +1,12 @@
+{
+  "name": "gameoflife",
+  "version": "1.0.0",
+  "description": "a Game of Life project in Javascript",
+  "main": "index.js",
+  "repository": "https://github.com/Booyanach/gameoflife.git",
+  "author": "Gonçalo Vieira <sandwave@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "mocha": "^3.2.0"
+  }
+}
