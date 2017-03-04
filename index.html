@@ -7,14 +7,15 @@
             <controller>
                 <div>
                     <h3>Dimensions:</h3>
-                    <label for="x_input">X:</label><input type="number" id="x_input"/>
-                    <label for="y_input">Y:</label><input type="number" id="y_input"/>
+                    <label for="x_input">X:</label><input type="number" id="x_input" value="40"/>
+                    <label for="y_input">Y:</label><input type="number" id="y_input" value="40"/>
                     <button onclick="gol.generateGrid()">Generate</button>
                 </div>
                 <button onclick="gol.populate()">Populate</button>
-                <button onclick="gol.nextStep()">></button>
+                <button onclick="gol.nextStep()">Next Generation</button>
                 <button onclick="gol.startStop(this)">Start</button>
-                <button onclick="gol.clear()">Clear</button>
+                <button onclick="gol.generateGrid()">Clear</button>
+                <div>generations: <span id="counter">0</span></div>
             </controller>
             <canvas id="playground"></canvas>
         </content>
