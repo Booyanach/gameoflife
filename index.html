@@ -1,0 +1,23 @@
+<html>
+    <head>
+        <link href="css/gol.css">
+    </head>
+    <body>
+        <content>
+            <controller>
+                <div>
+                    <h3>Dimensions:</h3>
+                    <label for="x_input">X:</label><input type="number" id="x_input"/>
+                    <label for="y_input">Y:</label><input type="number" id="y_input"/>
+                    <button onclick="gol.generateGrid()">Generate</button>
+                </div>
+                <button onclick="gol.populate()">Populate</button>
+                <button onclick="gol.nextStep()">></button>
+                <button onclick="gol.startStop(this)">Start</button>
+                <button onclick="gol.clear()">Clear</button>
+            </controller>
+            <canvas id="playground"></canvas>
+        </content>
+        <script src="./js/gol.js"></script>
+    </body>
+</html>
