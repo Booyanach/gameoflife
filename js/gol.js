@@ -2,62 +2,139 @@ var GOL = function() {
     this.started = false;
     this.width = 0;
     this.height = 0;
+    this.cellSize = 8;
+    this.cellSpacing = 1;
+    this.colors = ['#FFFFFF', '#7fafd1']
+
+    this.elements = [];
     this.grid = [];
+
+    this.counter = document.getElementById('counter');
     this.canvas = document.getElementById('playground');
     this.context = this.canvas.getContext('2d');
-    this.cellSize = 4;
+
+    // Handle click events on canvas
+    this.canvas.addEventListener('mousedown', this.clickListener.bind(this), false);
+
+    this.generateGrid();
 };
 
-GOL.prototype.generateGrid = function () {
-    this.width = parseInt(document.getElementById('x_input').value);
-    this.height = parseInt(document.getElementById('y_input').value);
+GOL.prototype.clickListener = function (event) {
+    var self = this;
+    var x = event.pageX - self.canvas.offsetLeft,
+        y = event.pageY - self.canvas.offsetTop;
+    
+    // Detect click over a cell.
+    self.elements.forEach(function(element) {
+        if (
+            y > element.row && y < element.row + element.height 
+            && x > element.column && x < element.column + element.width
+        ) {
+            element.value = element.value === 0 ? 1 : 0;
+            element.color = self.colors[element.value];
+            self.storeCell(element);
+            self.drawCell(element);
+        }
+    });
+}
 
-    this.grid = new Array(this.width).fill(new Array(this.height).fill(0));
-    this.canvas.width = this.width * this.cellSize;
-    this.canvas.height = this.height * this.cellSize;
+GOL.prototype.storeCell = function (element) {
+    this.grid[element.iColumn][element.iCell] = element.value;
+}
+
+GOL.prototype.generateGrid = function () {
+    var self = this;
+
+    self.counter.innerText = 0;
+
+    self.width = parseInt(document.getElementById('x_input').value) || 40;
+    self.height = parseInt(document.getElementById('y_input').value) || 40;
+
+    self.grid = new Array(self.width).fill(new Array(self.height).fill(0));
+    self.canvas.width = self.width * self.cellSize + self.cellSpacing * self.width + self.cellSpacing;
+    self.canvas.height = self.height * self.cellSize + self.cellSpacing * self.height + self.cellSpacing;
+
+    self.grid = self.grid.map(function(column, iColumn) {
+        return column.map(function(cell, iCell) {
+            var element = {
+                iColumn: iColumn,
+                iCell: iCell,
+                column: column,
+                column: (iColumn * self.cellSize) + self.cellSpacing + (self.cellSpacing * iColumn),
+                row: (iCell * self.cellSize) + self.cellSpacing + (self.cellSpacing * iCell),
+                color: self.colors[0],
+                value: 0,
+                width: self.cellSize,
+                height: self.cellSize
+            };
+
+            self.drawCell(element);
+            
+            self.elements.push(element);
+            return element;
+        });
+    });
+
+    this.drawGrid();
 }
 
 GOL.prototype.drawGrid = function () {
     var self = this;
     self.clear();
-    self.grid.map(function(row, iRow) {
-        row.map(function(cell, iCell) {
+    self.grid.map(function(column, iColumn) {
+        column.map(function(cell, iCell) {
             // Either occupied or not
-            self.context.fillStyle = '#7fafd1';
-            if (cell === 1) self.context.fillRect(iRow * self.cellSize, iCell * self.cellSize, self.cellSize, self.cellSize);
+            self.context.fillStyle = self.colors[cell];
+            self.context.fillRect(
+                (iColumn * self.cellSize) + self.cellSpacing + (self.cellSpacing * iColumn),
+                (iCell * self.cellSize) + self.cellSpacing + (self.cellSpacing * iCell),
+                self.cellSize,
+                self.cellSize
+            );
         });
     });
+}
+
+GOL.prototype.drawCell = function (element) {
+    // Either occupied or not
+    this.context.fillStyle = element.color;
+
+    this.context.fillRect(
+        element.column,
+        element.row,
+        this.cellSize,
+        this.cellSize
+    );
 }
 
 GOL.prototype.updateGrid = function (callback) {
     var self = this;
-    self.grid = self.grid.map(function(row, iRow) {
-        return row.map(function(cell, iCell) {
-            var neighbors = self.getNeighbors(row, iRow, iCell);
-            return self.calculateBehavior(neighbors, cell);
-        });
+    self.elements.forEach(function (element) {
+        var neighbors = self.getNeighbors(element.column, element.iColumn, element.iCell);
+        element.value = self.calculateBehavior(neighbors, element.value);
+        self.storeCell(element);
     });
 }
 
-GOL.prototype.getNeighbors = function (row, iRow, iCell) {
+GOL.prototype.getNeighbors = function (column, iColumn, iRow) {
     var neighbors = 0;
 
-    var prevRow = this.grid[iRow-1];
-    var nextRow = this.grid[iRow+1];
+    var prevColumn = this.grid[iColumn-1];
+    var nextColumn = this.grid[iColumn+1];
 
-    if(prevRow) {
-        neighbors += prevRow[iCell-1] || 0;         //top left
-        neighbors += prevRow[iCell] || 0;           //top center
-        neighbors += prevRow[iCell+1] || 0;         //top right
+    if(prevColumn) {
+        neighbors += prevColumn[iRow-1] || 0;         //top left
+        neighbors += prevColumn[iRow] || 0;           //top center
+        neighbors += prevColumn[iRow+1] || 0;         //top right
     }
 
-    neighbors += row[iCell-1] || 0;                 //middle left
-    neighbors += row[iCell+1] || 0;                 //middle right
+    neighbors += column[iRow-1] || 0;                 //middle left
+    neighbors += column[iRow+1] || 0;                 //middle right
 
-    if (nextRow) {
-        neighbors += nextRow[iCell-1] || 0;         //bottom left
-        neighbors += nextRow[iCell] || 0;           //bottom center
-        neighbors += nextRow[iCell+1] || 0;         //bottom right
+    if (nextColumn) {
+        neighbors += nextColumn[iRow-1] || 0;         //bottom left
+        neighbors += nextColumn[iRow] || 0;           //bottom center
+        neighbors += nextColumn[iRow+1] || 0;         //bottom right
     }
 
     return neighbors;
@@ -78,13 +155,15 @@ GOL.prototype.calculateBehavior = function (neighbors, cell) {
 };
 
 GOL.prototype.populate = function () {
+    this.generateGrid();
     this.randomizedStart();
     this.drawGrid();
 }
 
 GOL.prototype.nextStep = function () {
-    this.drawGrid();
+    this.counter.innerText = parseInt(this.counter.innerText) + 1;
     this.updateGrid();
+    this.drawGrid();
     if (this.started) {
         window.requestAnimationFrame(this.nextStep.bind(this));
     }
@@ -101,11 +180,13 @@ GOL.prototype.startStop = function (elem) {
 };
 
 GOL.prototype.randomizedStart = function () {
-    this.grid = this.grid.map(function(row) {
-        return row.map(function(cell) {
-            // Either alive or not
-            return Math.floor(Math.random() * 2);
-        });
+    var self = this;
+    self.elements.forEach(function (element) {
+        // Either alive or not
+        element.value = Math.floor(Math.random() * 2);
+        element.color = self.colors[element.value];
+        self.storeCell(element);
+        self.drawCell(element);
     });
 }
 
